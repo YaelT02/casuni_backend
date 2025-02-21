@@ -1,5 +1,5 @@
 const pool = require('../db'); // Conexión a la base de datos
-const bcrypt = require('bcrypt'); // Para encriptar y comparar contraseñas
+const bcrypt = require('bcryptjs'); // Para encriptar y comparar contraseñas
 const jwt = require('jsonwebtoken'); // Para generar y validar tokens
 
 // Registro de usuario
