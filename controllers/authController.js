@@ -57,8 +57,7 @@ const login = async (req, res) => {
         nombre: user.name,
         area: user.area,
       },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      process.env.JWT_SECRET
     );
 
     const firstLogin = user.first_login === 1;
