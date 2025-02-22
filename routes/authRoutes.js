@@ -6,7 +6,7 @@ const authenticateToken = require('../middleware/authMiddleware');
 router.post('/login', login);
 router.post('/register', register);
 router.post('/change-password', changePassword);
-router.post('/logout', logout);
+router.post('/logout', authenticateToken, logout);
 
 // Ruta para validar el token (se mantiene POST)
 router.post('/protected', authenticateToken, (req, res) => {
