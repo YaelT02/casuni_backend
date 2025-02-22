@@ -105,7 +105,7 @@ const changePassword = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    await logEvent(req.user.id, 'logout', `Usuario ${user.username} cerró sesión `);
+    await logEvent(req.user.id, 'logout', `Usuario ${req.user.username} cerró sesión `);
     res.status(200).json({message: 'Logout registrado exitosamente'});
   } catch (error){
     console.error('Error en el logout: ', error);

@@ -62,6 +62,7 @@ const downloadManual = async (req, res) => {
   try {
     const manualId = req.params.id;
     const userId = req.user.id;
+    const username = req.user.username;
 
     const [rows] = await pool.query('SELECT title, file_url FROM manuals WHERE id = ?', [manualId]); 
     if (rows.length === 0){
@@ -70,7 +71,7 @@ const downloadManual = async (req, res) => {
 
     const manual = rows[0];
     //Registar manual en bitacora
-    await logEvent(userId, 'download', `Usuario descargó el manual: ${manual.title}`);
+    await logEvent(userId, 'download', `El usuario ${username} descargó el manual: ${manual.title}`);
     res.redirect(manual.file_url);
   }catch (error){
     console.error('Error al descargar el manual:', error);
