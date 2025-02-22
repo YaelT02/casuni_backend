@@ -107,7 +107,7 @@ const logout = async (req, res) => {
   try {
     await logEvent(req.user.id, 'logout', `Usuario ${user.username} cerró sesión `);
     res.status(200).json({message: 'Logout registrado exitosamente'});
-  } catch {
+  } catch (error){
     console.error('Error en el logout: ', error);
     res.status(500).json({ message: 'Error en logout', error });
   }
