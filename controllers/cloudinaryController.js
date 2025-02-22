@@ -1,5 +1,6 @@
 const cloudinary = require('../config/cloudinaryConfig');
 const pool = require('../db'); // Conexión a la base de datos
+const logEvent = require('../utils/logger'); //Para generar registro en bitacora
 
 // Subir manual
 const uploadManual = async (req, res) => {
@@ -35,17 +36,6 @@ const uploadManual = async (req, res) => {
   }
 };
 
-// Obtener todos los manuales
-/*const getManuals = async (req, res) => {
-  try {
-    const [manuals] = await pool.query('SELECT * FROM manuals');
-    res.status(200).json(manuals);
-  } catch (error) {
-    console.error('Error al obtener los manuales:', error);
-    res.status(500).json({ message: 'Error al obtener los manuales', error });
-  }
-};*/
-
 const getManuals = async (req, res) => {
   try {
     const [manuals] = await pool.query(`
@@ -68,7 +58,28 @@ const getManuals = async (req, res) => {
   }
 };
 
+const downloadManual = async (req, res) => {
+  try {
+    const manualId = req.params.id;
+    const userId = req.user.id;
+
+    const [rows] = await pool.query('SELECT title, file_url FROM manuals WHERE id = ?', [manualId]); 
+    if (rows.length === 0){
+      return res.status(404).json({ message: 'Manual no encontrado' });
+    }
+
+    const manual = rows[0];
+    //Registar manual en bitacora
+    await logEvent(userId, 'download', `Usuario descargó el manual: ${manual.title}`);
+    res.redirect(manual.file_url);
+  }catch (error){
+    console.error('Error al descargar el manual:', error);
+    res.status(500).json({ message: 'Error al descargar el manual', error });
+  }
+}
+
 module.exports = {
   uploadManual,
   getManuals,
+  downloadManual
 };

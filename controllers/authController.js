@@ -1,6 +1,7 @@
 const pool = require('../db'); // Conexión a la base de datos
 const bcrypt = require('bcryptjs'); // Para encriptar y comparar contraseñas
 const jwt = require('jsonwebtoken'); // Para generar y validar tokens
+const logEvent = require('../utils/logger'); //Para generar registro en bitacora
 
 // Registro de usuario
 const register = async (req, res) => {
@@ -19,7 +20,7 @@ const register = async (req, res) => {
     // Insertar el nuevo usuario
     await pool.query(
       'INSERT INTO users (username, password, name, area, role) VALUES (?, ?, ?, ?, ?)',
-      [username, hashedPassword, nombre, area, role || 'user'] // Si no se especifica role, se asigna 'user'
+      [username, hashedPassword, nombre, area, role || 'user'] 
     );
 
     res.status(201).json({ message: 'Usuario registrado exitosamente' });
@@ -62,6 +63,8 @@ const login = async (req, res) => {
 
     const firstLogin = user.first_login === 1;
 
+    await logEvent(user.id,'login', `Usuario ${user.username} inicio sesión`);
+
     res.status(200).json({
       message: 'Login exitoso',
       token,
@@ -100,6 +103,16 @@ const changePassword = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  try {
+    await logEvent(req.user.id, 'logout', `Usuario ${user.username} cerró sesión `);
+    res.status(200).json({message: 'Logout registrado exitosamente'});
+  } catch {
+    console.error('Error en el logout: ', error);
+    res.status(500).json({ message: 'Error en logout', error });
+  }
+}
+
 // Ruta protegida (opcional)
 const protectedRoute = (req, res) => {
   res.status(200).json({
@@ -118,5 +131,6 @@ module.exports = {
   register,
   login,
   changePassword,
+  logout,
   protectedRoute,
 };
