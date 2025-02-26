@@ -1,6 +1,9 @@
 const pool = require('../db'); // Conexión a la base de datos
 const bcrypt = require('bcryptjs'); // Para encriptar y comparar contraseñas
 const jwt = require('jsonwebtoken'); // Para generar y validar tokens
+const requestIp = require('request-ip');
+const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
 const logEvent = require('../utils/logger'); //Para generar registro en bitacora
 
 // Registro de usuario
@@ -61,13 +64,36 @@ const login = async (req, res) => {
       process.env.JWT_SECRET
     );
 
+    //Obtener IP
+    const clientIp = requestIp.getClientIp(req);
+
+    //Consultar con ip-api
+    const ipApiUrl = `http://ip-api.com/json/${clientIp}?fields=status,country,regionName,city,timezone,message`;
+    const ipResponse = await axios.get(ipApiUrl);
+    let country = null, region = null, city = null, timezone = null;
+    if (ipResponse.data.status === "success") {
+      country = ipResponse.data.country;
+      region = ipResponse.data.regionName;
+      city = ipResponse.data.city;
+      timezone = ipResponse.data.timezone;
+    }
+
+    //Generar UUID para la sesión
+    const sessionId = uuidv4();
+
+    //Registar sesión en BD
+    await pool.query(
+      'INSERT INTO sessions (session_id, user_id, ip, country, region, city, timezone) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [sessionId, user.id, clientIp, country, region, city, timezone]
+    );
+
+    await logEvent(user.id,'login', `Usuario ${user.username} inicio sesión`, sessionId);
+
     const firstLogin = user.first_login === 1;
-
-    await logEvent(user.id,'login', `Usuario ${user.username} inicio sesión`);
-
     res.status(200).json({
       message: 'Login exitoso',
       token,
+      sessionId,
       user: {
         id: user.id,
         username: user.username,
