@@ -61,7 +61,7 @@ const getManuals = async (req, res) => {
 const downloadManual = async (req, res) => {
   try {
     const manualId = req.params.id;
-    const sessionId = req.query.sessionId;
+    const sessionId = req.headers['x-session-id'];
     const userId = req.user.id;
     const username = req.user.username;
 

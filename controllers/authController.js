@@ -131,7 +131,7 @@ const changePassword = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    const { sessionId } = req.body;
+    const { sessionId } = req.headers['x-session-id'];
     if (req.user && req.user.id) {
       await logEvent(req.user.id, 'logout', `Usuario ${req.user.username} cerró sesión `, sessionId);
       await pool.query(
