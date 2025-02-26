@@ -8,9 +8,12 @@ const getLogs = async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT l.id, l.event_type, l.description, l.created_at,
-             u.name, u.username, u.area
+             u.name, u.username, u.area, s.session_id, s.ip,
+             s.started_at,
+             CONCAT_WS(',', s.country, s.region, s.city) AS location
       FROM logs l
       INNER JOIN users u ON l.user_id = u.id
+      LEFT JOIN sessions s ON l.session_id = s.session_id
       ORDER BY l.created_at DESC;
     `);
     res.status(200).json(rows);
