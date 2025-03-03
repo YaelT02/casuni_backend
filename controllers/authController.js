@@ -131,21 +131,28 @@ const changePassword = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    const { sessionId } = req.body;
+    // Leer sessionId desde el header personalizado
+    const sessionId = req.headers['x-session-id'];
+    if (!sessionId) {
+      return res.status(400).json({ message: 'Session ID no proporcionado' });
+    }
+
     if (req.user && req.user.id) {
-      await logEvent(req.user.id, 'logout', `Usuario ${req.user.username} cerró sesión `, sessionId);
+      await logEvent(req.user.id, 'logout', `Usuario ${req.user.username} cerró sesión`, sessionId);
       await pool.query(
         'UPDATE sessions SET ended_at = CURRENT_TIMESTAMP WHERE session_id = ?',
         [sessionId]
       );
-      res.status(200).json({message: 'Logout registrado exitosamente'});
+      return res.status(200).json({ message: 'Logout registrado exitosamente' });
+    } else {
+      return res.status(403).json({ message: 'No se encontró información del usuario' });
     }
-
-  } catch (error){
+  } catch (error) {
     console.error('Error en el logout: ', error);
-    res.status(500).json({ message: 'Error en logout', error });
+    return res.status(500).json({ message: 'Error en logout', error });
   }
-}
+};
+
 
 // Ruta protegida (opcional)
 const protectedRoute = (req, res) => {

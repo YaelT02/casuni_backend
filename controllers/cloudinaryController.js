@@ -62,6 +62,11 @@ const downloadManual = async (req, res) => {
   try {
     const manualId = req.params.id;
     const sessionId = req.headers['x-session-id'];
+
+    if (!sessionId) {
+      return res.status(400).json({ message: 'Sesion ID no proporcionado' })
+    }
+
     const userId = req.user.id;
     const username = req.user.username;
 
@@ -71,6 +76,7 @@ const downloadManual = async (req, res) => {
     }
 
     const manual = rows[0];
+    
     //Registar manual en bitacora
     await logEvent(userId, 'download', `El usuario ${username} descargó el manual: ${manual.title}`, sessionId);
     res.redirect(manual.file_url);
