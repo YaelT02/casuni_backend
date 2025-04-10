@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes'); // Importar las rutas de autenticación
+const logsRoutes = require('./routes/logsRoutes'); // Bitácora
 const manualsRoutes = require('./routes/manualsRoutes');
 const courseRoutes = require('./routes/courseRoutes');         
 const moduleRoutes = require('./routes/moduleRoutes');         
