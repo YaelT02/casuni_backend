@@ -16,7 +16,8 @@ const enrollUser = async (req, res) => {
 };
 
 const updateProgress = async (req, res) => {
-  const { enrollmentId, progress_percentage, status } = req.body;
+  const { progress_percentage, status } = req.body;
+  const enrollmentId = req.params.id; 
   try {
     await pool.query(
       'UPDATE enrollments SET progress_percentage = ?, status = ? WHERE id = ?',
