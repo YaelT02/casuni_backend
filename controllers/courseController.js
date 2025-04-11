@@ -2,14 +2,24 @@
 const pool = require('../db');
 
 const createCourse = async (req, res) => {
-  const { title, description, level, estimated_duration } = req.body;
+  const { title, description, level, estimated_duration, model_id } = req.body;
   const created_by = req.user.id; // Se asume que el usuario ya está autenticado y es admin
 
   try {
-    await pool.query(
+    const [result] = await pool.query(
       'INSERT INTO trainings (title, description, level, estimated_duration, created_by) VALUES (?, ?, ?, ?, ?)',
       [title, description, level, estimated_duration, created_by]
     );
+
+    const trainingId = result.insertId;
+
+    if (model_id) {
+      await pool.query(
+        'INSERT INTO model_trainings (model_id, training_id) VALUES (?, ?)',
+        [model_id, trainingId]
+      );
+    }
+    
     res.status(201).json({ message: 'Curso creado exitosamente' });
   } catch (error) {
     console.error('Error al crear curso:', error);
