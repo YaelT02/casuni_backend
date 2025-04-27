@@ -20,7 +20,9 @@ const createCourse = async (req, res) => {
       );
     }
     
-    res.status(201).json({ message: 'Curso creado exitosamente' });
+    res.status(201).json({ 
+      message: 'Curso creado exitosamente',
+      trainingId, });
   } catch (error) {
     console.error('Error al crear curso:', error);
     res.status(500).json({ message: 'Error al crear curso', error });

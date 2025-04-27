@@ -12,8 +12,8 @@ const uploadManual = async (req, res) => {
 
     // Subir archivo a Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: 'raw', // Asegura que admite archivos PDF
-      folder: 'manuals', // Carpeta específica en Cloudinary
+      resource_type: 'raw', 
+      folder: 'manuals', 
       use_filename: true,
       unique_filename: false,
       format: 'pdf', 
