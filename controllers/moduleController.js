@@ -1,4 +1,3 @@
-// controllers/moduleController.js
 const pool = require('../db');
 
 const createModule = async (req, res) => {
@@ -6,11 +5,16 @@ const createModule = async (req, res) => {
   const { title, description, order } = req.body;
 
   try {
-    await pool.query(
+    const [result] = await pool.query(
       'INSERT INTO modules (training_id, title, description, `order`) VALUES (?, ?, ?, ?)',
       [trainingId, title, description, order]
     );
-    res.status(201).json({ message: 'Módulo creado exitosamente' });
+    const moduleId = result.insertId;
+    /*await pool.query(
+      'INSERT INTO modules (training_id, title, description, `order`) VALUES (?, ?, ?, ?)',
+      [trainingId, title, description, order]
+    );*/
+    res.status(201).json({ message: 'Módulo creado exitosamente', moduleId });
   } catch (error) {
     console.error('Error al crear módulo:', error);
     res.status(500).json({ message: 'Error al crear módulo', error });
