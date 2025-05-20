@@ -49,12 +49,17 @@ const getCourses = async (req, res) => {
         t.level,
         t.estimated_duration,
         b.name AS brand,
-        m.name AS model_name
-      FROM trainings t
-      INNER JOIN model_trainings mt ON mt.training_id = t.id
-      INNER JOIN models m           ON m.id        = mt.model_id
-      INNER JOIN brands b           ON b.id        = m.brand_id
-      ORDER BY t.created_at DESC;
+        m.name AS model_name,
+        (
+          SELECT COUNT(*)
+          FROM modules AS mo
+          WHERE mo.training_id = t.id
+        ) AS module_count
+        FROM trainings AS t
+        INNER JOIN model_trainings AS mt ON mt.training_id = t.id
+        INNER JOIN models AS m ON m.id = mt.model_id
+        INNER JOIN brands AS b ON b.id = m.brand_id
+        ORDER BY t.created_at DESC;
     `);
     res.status(200).json(rows);
   } catch (error) {
