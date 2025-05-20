@@ -29,9 +29,33 @@ const createCourse = async (req, res) => {
   }
 };
 
-const getCourses = async (req, res) => {
+/*const getCourses = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM trainings ORDER BY created_at DESC');
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Error al obtener cursos:', error);
+    res.status(500).json({ message: 'Error al obtener cursos', error });
+  }
+};*/
+
+const getCourses = async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT
+        t.id,
+        t.title,
+        t.description,
+        t.level,
+        t.estimated_duration,
+        b.name AS brand,
+        m.name AS model_name
+      FROM trainings t
+      INNER JOIN model_trainings mt ON mt.training_id = t.id
+      INNER JOIN models m           ON m.id        = mt.model_id
+      INNER JOIN brands b           ON b.id        = m.brand_id
+      ORDER BY t.created_at DESC;
+    `);
     res.status(200).json(rows);
   } catch (error) {
     console.error('Error al obtener cursos:', error);
