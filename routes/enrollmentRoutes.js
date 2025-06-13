@@ -1,10 +1,15 @@
 // routes/enrollmentRoutes.js
 const express = require('express');
 const router = express.Router();
-const { enrollUser, updateProgress } = require('../controllers/enrollmentController');
+const { createEnrollment, getMyEnrollments, getEnrollmentById, updateEnrollment } = require('../controllers/enrollmentController');
 const authenticateToken = require('../middleware/authMiddleware');
 
-router.post('/', authenticateToken, enrollUser);
-router.put('/:id', authenticateToken, updateProgress);
+router.post('/', authenticateToken, createEnrollment);
+
+router.get('/my', authenticateToken, getMyEnrollments);
+
+router.get('/:id', authenticateToken, getEnrollmentById);
+
+router.patch('/:id', authenticateToken, updateEnrollment);
 
 module.exports = router;
