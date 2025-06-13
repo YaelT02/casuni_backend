@@ -1,4 +1,5 @@
 // controllers/contentController.js
+const path = require('path');
 const pool = require('../db');
 const cloudinary = require('../config/cloudinaryConfig');
 const fs = require('fs');
@@ -8,9 +9,13 @@ const uploadContent = async (req, res) => {
   const { title, type, order } = req.body;
 
   try {
-    // Subir archivo a Cloudinary (asegúrate de configurar el resource_type según el tipo de contenido)
+    const extension = path.extname(req.file.originalname).replace('.', '').toLowerCase();
+
+    let resourceType = 'raw';
+    if (type === 'video') resourceType = 'video';
+
     const result = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: 'raw',
+      resource_type: resourceType,
       folder: 'course_contents',
       use_filename: true,
       unique_filename: false,
@@ -22,11 +27,11 @@ const uploadContent = async (req, res) => {
 
     // Guardar la URL y datos en la base de datos
     await pool.query(
-      'INSERT INTO contents (module_id, type, url, title, `order`) VALUES (?, ?, ?, ?, ?)',
-      [moduleId, type, result.secure_url, title, order]
+      'INSERT INTO contents (module_id, type, url, title, `order`, file_extension) VALUES (?, ?, ?, ?, ?, ?)',
+      [moduleId, type, result.secure_url, title, order, extension]
     );
 
-    res.status(201).json({ message: 'Contenido subido exitosamente', url: result.secure_url });
+    res.status(201).json({ message: 'Contenido subido exitosamente', url: result.secure_url, extension });
   } catch (error) {
     console.error('Error al subir contenido:', error);
     res.status(500).json({ message: 'Error al subir contenido', error });

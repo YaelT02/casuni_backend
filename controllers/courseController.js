@@ -138,4 +138,36 @@ const getCourseById = async (req, res) => {
   }
 };
 
-module.exports = { createCourse, getCourses, getCourseById };
+const getCoursesByUser = async (req, res) => {
+  console.log('REQ.USER →', req.user); 
+  const userId = req.user.id;
+  
+  try {
+    const [rows] = await pool.query(`
+      SELECT
+        t.id,
+        t.title,
+        t.description,
+        t.level,
+        t.estimated_duration,
+        b.name       AS brand,
+        m.name       AS model_name,
+        (
+          SELECT COUNT(*) FROM modules mo WHERE mo.training_id = t.id
+        ) AS module_count
+      FROM trainings t
+      INNER JOIN model_trainings mt ON mt.training_id = t.id
+      INNER JOIN models m           ON m.id           = mt.model_id
+      INNER JOIN brands b           ON b.id           = m.brand_id
+      WHERE t.created_by = ?
+      ORDER BY t.created_at DESC;
+    `, [userId]);
+
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Error al obtener mis cursos:', error);
+    res.status(500).json({ message: 'Error al obtener mis cursos', error });
+  }
+};
+
+module.exports = { createCourse, getCourses, getCourseById, getCoursesByUser };
